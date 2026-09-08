@@ -31,7 +31,8 @@ author.
 date	file	sha256	bytes	chain
 ```
 
-- **date** — UTC date of the commitment
+- **date** — JST date of the commitment, matching the date stamped on the
+  private file's own output
 - **file** — basename only; the private repository's structure is not disclosed
 - **sha256** — digest of the file as it stood on that date
 - **bytes** — file size

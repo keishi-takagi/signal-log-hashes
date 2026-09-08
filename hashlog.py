@@ -39,7 +39,8 @@ import argparse
 import hashlib
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 # --- configuration ----------------------------------------------------------
@@ -60,6 +61,13 @@ TRACKED_FILES = [
     SIGNAL_LOG_DIR / "live_backfill_log.csv",
     SIGNAL_LOG_DIR / "live_backfill_log.html",
 ]
+
+# Dates are stamped in JST, pinned here rather than taken from the environment
+# so that manual runs and cron runs agree. The signal pipeline stamps its own
+# output with the JST date; if this file used UTC, any run before 09:00 JST
+# would record the previous day and the two records would disagree about which
+# day a digest covers.
+TZ = ZoneInfo("Asia/Tokyo")
 
 HEADER = "date\tfile\tsha256\tbytes\tchain"
 GENESIS = "0" * 64
@@ -110,7 +118,7 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true", help="print, do not write")
     args = ap.parse_args()
 
-    stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    stamp = datetime.now(TZ).strftime("%Y-%m-%d")
     lines = read_log()
     prev = last_chain(lines)
 
